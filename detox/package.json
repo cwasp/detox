@@ -46,7 +46,6 @@
     "ini": "^1.3.4",
     "lodash": "^4.17.5",
     "minimist": "^1.2.0",
-    "npmlog": "^4.0.2",
     "proper-lockfile": "^3.0.2",
     "shell-utils": "^1.0.9",
     "tail": "^1.2.3",

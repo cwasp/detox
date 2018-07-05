@@ -16,14 +16,14 @@ describe('Device', () => {
   let sh;
   let Client;
   let client;
-  let npmlog;
+  let logger;
   let logError;
 
   beforeEach(async () => {
     jest.mock('fs');
     jest.mock('../utils/logger');
     fs = require('fs');
-    npmlog = require('../utils/logger');
+    logger = require('../utils/logger');
 
     Device = require('./Device');
 
@@ -151,7 +151,7 @@ describe('Device', () => {
       pid: 2,
     };
 
-    expect(npmlog.error).toHaveBeenCalledWith(
+    expect(logger.error).toHaveBeenCalledWith(
       'detox-device',
       'device.emit("%s", %j) error',
       'launchApp',
