@@ -1,5 +1,6 @@
 const _ = require('lodash');
-const log = require('../utils/logger');
+const util = require('util');
+const log = require('../utils/logger').child({ __filename, ws: true });
 const WebSocket = require('ws');
 
 class AsyncWebSocket {
@@ -16,12 +17,12 @@ class AsyncWebSocket {
     return new Promise(async(resolve, reject) => {
       this.ws = new WebSocket(this.url);
       this.ws.onopen = (response) => {
-        log.verbose(`ws`, `onOpen ${response}`);
+        log.debug({ event: 'onOpen' }, `onOpen: ${util.inspect(response)}`);
         resolve(response);
       };
 
       this.ws.onerror = (error) => {
-        log.error(`ws`, `onError: ${error}`);
+        log.error({ event: 'onError' }, `onError: ${error}`);
 
         if (_.size(this.inFlightPromises) === 1) {
           _.values(this.inFlightPromises)[0].reject(error);
@@ -32,7 +33,8 @@ class AsyncWebSocket {
       };
 
       this.ws.onmessage = (response) => {
-        log.verbose(`ws`, `onMessage: ${response.data}`);
+        log.debug({ event: 'onMessage' }, `onMessage: ${response.data}`);
+
         let messageId = JSON.parse(response.data).messageId;
         let pendingPromise = this.inFlightPromises[messageId];
         if (pendingPromise) {
@@ -58,7 +60,7 @@ class AsyncWebSocket {
       message.messageId = messageId || this.messageIdCounter++;
       this.inFlightPromises[message.messageId] = {resolve, reject};
       const messageAsString = JSON.stringify(message);
-      log.verbose(`ws`, `send: ${messageAsString}`);
+      log.debug({ event: 'send' }, `send: ${messageAsString}`);
       this.ws.send(messageAsString);
     });
   }
@@ -99,8 +101,6 @@ class AsyncWebSocket {
       pendingPromise.reject(error);
       delete this.inFlightPromises[messageId];
     });
-
-
   }
 }
 

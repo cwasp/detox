@@ -20,4 +20,9 @@ describe('logger', () => {
     child.info('something from child');
     child.warn('a bit more from child');
   });
+
+  it('should log multi-line stuff', () => {
+    const stack = new Error().stack;
+    logger.error({ stack }, `App crashed in test 'should log multi-line stuff', here's the native stack trace: \n${stack}`);
+  });
 });

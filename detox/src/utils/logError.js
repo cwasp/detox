@@ -1,4 +1,4 @@
-const log = require('./logger');
+const log = require('./logger').child({ __filename });
 const DetoxRuntimeError = require('../errors/DetoxRuntimeError');
 
 function logError(err, prefix = 'detox') {
@@ -24,8 +24,8 @@ function logError(err, prefix = 'detox') {
 
   if (err.childProcess) {
     log.error(prefix, '%s', err.message);
-    log.verbose('child-process-stdout', '%s', err.stdout);
-    log.verbose('child-process-stderr', '%s', err.stderr);
+    log.debug('child-process-stdout', '%s', err.stdout);
+    log.debug('child-process-stderr', '%s', err.stderr);
 
     return;
   }

@@ -37,13 +37,12 @@ const consoleStream = {
   stream: bunyanDebugStream({
     basepath: __dirname,
     prefixers: {
-      '__filename': filename => path.relative(process.cwd(), filename),
+      '__filename': filename => `${path.relative(process.cwd(), filename)}`,
+      '_operationCounter': counter => ` op #${counter}`,
+      'event': e => ` ${e}`,
     },
   }),
-  serializers: {
-    ...bunyanDebugStream.serializers,
-    __filename: () => null,
-  },
+  serializers: bunyanDebugStream.serializers,
 };
 
 const fileStream = shouldRecordLogs && logFilepath ? {
@@ -57,8 +56,15 @@ if (fileStream) {
 
 const streams = _.compact([consoleStream, fileStream]);
 
-const detoxLogger = bunyan.createLogger({ name: 'detox', streams });
-const detoxServerLogger = bunyan.createLogger({ name: 'detox-server', streams });
+const detoxLogger = bunyan.createLogger({
+  name: 'detox',
+  streams
+});
+
+const detoxServerLogger = bunyan.createLogger({
+  name: 'detox-server',
+  streams
+});
 
 detoxLogger.server = detoxServerLogger;
 module.exports = detoxLogger;

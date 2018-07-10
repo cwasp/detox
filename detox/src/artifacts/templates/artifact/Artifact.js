@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const log = require('../../../utils/logger');
+const log = require('../../../utils/logger').child({ __filename });
 const DetoxRuntimeError = require('../../../errors/DetoxRuntimeError');
 
 class Artifact {

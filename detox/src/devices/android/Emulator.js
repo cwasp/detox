@@ -2,7 +2,7 @@ const path = require('path');
 const exec = require('../../utils/exec').execWithRetriesAndLogs;
 const spawn = require('child-process-promise').spawn;
 const _ = require('lodash');
-const log = require('../../utils/logger');
+const log = require('../../utils/logger').child({ __filename });
 const fs = require('fs');
 const os = require('os');
 const Environment = require('../../utils/environment');
@@ -58,7 +58,7 @@ class Emulator {
       fs.unlink(tempLog, _.noop);
     }
 
-    log.verbose(this.emulatorBin, ...emulatorArgs);
+    log.debug(this.emulatorBin, ...emulatorArgs);
     const childProcessPromise = spawn(this.emulatorBin, emulatorArgs, { detached: true, stdio: ['ignore', stdout, stderr] });
     childProcessPromise.childProcess.unref();
 
@@ -74,7 +74,7 @@ class Emulator {
       throw err;
     }).then(() => {
       detach();
-      log.verbose('stdout', '%s', childProcessOutput);
+      log.debug('stdout', '%s', childProcessOutput);
     });
   }
 

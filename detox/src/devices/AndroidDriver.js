@@ -1,7 +1,7 @@
 const {spawn} = require('child_process');
 const fs = require('fs');
 const _ = require('lodash');
-const log = require('../utils/logger');
+const log = require('../utils/logger').child({ __filename });
 const invoke = require('../invoke');
 const InvocationManager = invoke.InvocationManager;
 const ADB = require('./android/ADB');
@@ -95,17 +95,17 @@ class AndroidDriver extends DeviceDriverBase {
 
     this.instrumentationProcess = spawn(this.adb.adbBin, [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`,
       `false`, testRunner]);
-    log.verbose(this.instrumentationProcess.spawnargs.join(" "));
-    log.verbose('Instrumentation spawned, childProcess.pid: ', this.instrumentationProcess.pid);
+    log.debug(this.instrumentationProcess.spawnargs.join(" "));
+    log.debug('Instrumentation spawned, childProcess.pid: ', this.instrumentationProcess.pid);
     this.instrumentationProcess.stdout.on('data', function(data) {
-      log.verbose('Instrumentation stdout: ', data.toString());
+      log.debug('Instrumentation stdout: ', data.toString());
     });
     this.instrumentationProcess.stderr.on('data', function(data) {
-      log.verbose('Instrumentation stderr: ', data.toString());
+      log.debug('Instrumentation stderr: ', data.toString());
     });
 
     this.instrumentationProcess.on('close', (code, signal) => {
-      log.verbose(`instrumentationProcess terminated due to receipt of signal ${signal}`);
+      log.debug(`instrumentationProcess terminated due to receipt of signal ${signal}`);
       this.terminateInstrumentation();
     });
 

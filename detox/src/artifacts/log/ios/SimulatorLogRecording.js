@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const fs = require('fs-extra');
-const log = require('../../../utils/logger');
+const log = require('../../../utils/logger').child({ __filename });
 const { Tail } = require('tail');
 const Artifact = require('../../templates/artifact/Artifact');
 
@@ -24,14 +24,14 @@ class SimulatorLogRecording extends Artifact {
   }
 
   async doStart() {
-    log.verbose('SimulatorLogPlugin', 'starting to watch log');
+    log.debug('starting to watch log');
     this._logStream = fs.createWriteStream(this._logPath, { flags: 'w' });
     this._stdoutTail = this._createTail(this._stdoutPath, 'stdout');
     this._stderrTail = this._createTail(this._stderrPath, 'stderr');
   }
 
   async doStop() {
-    log.verbose('SimulatorLogPlugin', 'stopping to watch log');
+    log.debug('stopping to watch log');
     this._unwatch();
   }
 
@@ -40,10 +40,10 @@ class SimulatorLogRecording extends Artifact {
     const tempLogPath = this._logPath;
 
     if (await fs.exists(tempLogPath)) {
-      log.verbose('SimulatorLogRecording', 'moving %s to %s', tempLogPath, artifactPath);
+      log.debug({ event: 'mv_temp'}, `moving "${tempLogPath}" to ${artifactPath}`);
       await fs.move(tempLogPath, artifactPath);
     } else {
-      log.error('SimulatorLogRecording', 'did not find temporary log file: %s', tempLogPath, artifactPath);
+      log.error({ event: 'mv_temp_error'}, `did not find temporary log file: ${tempLogPath}`);
     }
   }
 

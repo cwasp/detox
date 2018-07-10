@@ -1,9 +1,8 @@
 const _ = require('lodash');
 const fs = require('fs-extra');
 const path = require('path');
-const log = require('../utils/logger');
+const log = require('../utils/logger').child({ __filename });
 const argparse = require('../utils/argparse');
-const logError = require('../utils/logError');
 const DetoxRuntimeError = require('../errors/DetoxRuntimeError');
 const ArtifactPathBuilder = require('./utils/ArtifactPathBuilder');
 
@@ -209,9 +208,9 @@ class ArtifactsManager {
     }));
   }
 
-  _errorHandler(e, { plugin, methodName }) {
-    log.error('ArtifactsManager', 'Caught exception inside plugin (%s) at phase %s', plugin.name || 'unknown', methodName);
-    logError(e, 'ArtifactsManager');
+  _errorHandler(err, { plugin, methodName }) {
+    const eventObject = { event: 'artifact_plugin_exception', plugin: plugin.name || 'unknown', methodName, err };
+    log.error(eventObject, `Caught exception inside plugin (${eventObject.plugin}) at phase ${methodName}`);
   }
 
   _idleCallbackErrorHandle(e, callback) {
