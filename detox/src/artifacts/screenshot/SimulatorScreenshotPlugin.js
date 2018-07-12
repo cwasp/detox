@@ -21,12 +21,12 @@ class SimulatorScreenshotter extends ScreenshotArtifactPlugin {
       },
 
       async save(artifactPath) {
-        log.debug({ event: 'mv' }, `moving file "${temporaryFilePath}" to "${artifactPath}"`);
+        log.debug({ event: 'MOVE_FILE' }, `moving file "${temporaryFilePath}" to "${artifactPath}"`);
         await fs.move(temporaryFilePath, artifactPath);
       },
 
       async discard() {
-        log.debug({ event: 'rm' }, `removing temp file: ${temporaryFilePath}`);
+        log.debug({ event: 'REMOVE_FILE' }, `removing temp file: ${temporaryFilePath}`);
         await fs.remove(temporaryFilePath);
       },
     });

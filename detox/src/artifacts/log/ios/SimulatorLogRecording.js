@@ -40,10 +40,10 @@ class SimulatorLogRecording extends Artifact {
     const tempLogPath = this._logPath;
 
     if (await fs.exists(tempLogPath)) {
-      log.debug({ event: 'mv_temp'}, `moving "${tempLogPath}" to ${artifactPath}`);
+      log.debug({ event: 'MOVE_FILE' }, `moving "${tempLogPath}" to ${artifactPath}`);
       await fs.move(tempLogPath, artifactPath);
     } else {
-      log.error({ event: 'mv_temp_error'}, `did not find temporary log file: ${tempLogPath}`);
+      log.error({ event: 'MOVE_FILE_ERROR'} , `did not find temporary log file: ${tempLogPath}`);
     }
   }
 
@@ -78,8 +78,8 @@ class SimulatorLogRecording extends Artifact {
     const tail = new Tail(file, {
       fromBeginning: this._readFromBeginning,
       logger: {
-        info: (...args) => log.verbose(`simulator-log-info`, ...args),
-        error: (...args) => log.error(`simulator-log-error`, ...args),
+        info: (...args) => log.trace({ event: 'TAIL_INFO' }, ...args),
+        error: (...args) => log.error({ event: 'TAIL_ERROR' }, ...args),
       },
     }).on('line', (line) => {
       this._appendLine(prefix, line);
@@ -106,7 +106,7 @@ class SimulatorLogRecording extends Artifact {
       this._logStream.write(line);
       this._logStream.write('\n');
     } else {
-      log.warn('SimulatorLogRecording', 'failed to add line to log: %s', line);
+      log.warn({ event: 'LOG_WRITE_ERROR' }, 'failed to add line to log:\n' + line);
     }
   }
 }

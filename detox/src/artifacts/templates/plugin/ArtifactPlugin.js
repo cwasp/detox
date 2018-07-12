@@ -139,7 +139,7 @@ class ArtifactPlugin {
 
   _logDisableWarning() {
     if (!this.enabled && this._disableReason) {
-      log.warn('detox-artifacts', 'WARNING! Artifact plugin %s was disabled because %s', this.constructor.name, this._disableReason);
+      log.warn({ event: 'ARTIFACT_PLUGIN_DISABLED' }, `Artifact plugin ${this.constructor.name} was disabled because ${this._disableReason}`);
     }
   }
 
