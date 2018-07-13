@@ -71,7 +71,7 @@ async function execWithRetriesAndLogs(bin, options, statusLogs, retries = 10, in
   return result;
 }
 
-function spawnAndLog(command, flags) {
+function spawnAndLog(command, flags, options) {
   const sequentialId = _operationCounter++;
 
   let out = '';
@@ -81,18 +81,18 @@ function spawnAndLog(command, flags) {
   let log = execLogger.child({ fn: 'spawnAndLog', cmd, sequentialId });
   log.debug({ event: 'SPAWN_CMD' }, cmd);
 
-  const result = spawn(command, flags, {stdio: ['ignore', 'pipe', 'pipe'], detached: true});
+  const result = spawn(command, flags, {stdio: ['ignore', 'pipe', 'pipe'], detached: true, ...options});
 
   if (result.childProcess) {
     const {pid, stdout, stderr} = result.childProcess;
     log = log.child({ child_pid: pid });
+
     log.debug({ event: 'SPAWN_SUCCESS' }, `spawned child process with pid = ${pid}`);
-
-    stdout.on('data', (chunk) => out += chunk.toString());
-    stderr.on('data', (chunk) => err += chunk.toString());
-
-    stdout.on('end', () => out && log.debug({ stdout: true }, out));
-    stderr.on('end', () => err && log.debug({ stderr: true }, err));
+    stdout.on('data', (chunk) => log.debug({ stdout: true }, chunk.toString()));
+    stderr.on('data', (chunk) => log.debug({ stderr: true }, chunk.toString()));
+    result.childProcess.on('end', (code, signal) => {
+      log.debug({ event: 'SPAWN_END' }, `child process received signal ${signal} and exited with code = ${code}`);
+    })
   }
 
   return result;

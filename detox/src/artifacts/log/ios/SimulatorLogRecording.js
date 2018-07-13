@@ -24,14 +24,12 @@ class SimulatorLogRecording extends Artifact {
   }
 
   async doStart() {
-    log.debug('starting to watch log');
     this._logStream = fs.createWriteStream(this._logPath, { flags: 'w' });
     this._stdoutTail = this._createTail(this._stdoutPath, 'stdout');
     this._stderrTail = this._createTail(this._stderrPath, 'stderr');
   }
 
   async doStop() {
-    log.debug('stopping to watch log');
     this._unwatch();
   }
 
@@ -54,12 +52,14 @@ class SimulatorLogRecording extends Artifact {
 
   _unwatch() {
     if (this._stdoutTail) {
+      log.trace({ event: 'TAIL_UNWATCH' }, `unwatching stdout log`);
       this._stdoutTail.unwatch();
     }
 
     this._stdoutTail = null;
 
     if (this._stderrTail) {
+      log.trace({ event: 'TAIL_UNWATCH' }, `unwatching stderr log`);
       this._stderrTail.unwatch();
     }
 
@@ -75,6 +75,8 @@ class SimulatorLogRecording extends Artifact {
   }
 
   _createTail(file, prefix) {
+    log.trace({ event: 'TAIL_CREATE' }, `starting to watch ${prefix} log: ${file}`);
+
     const tail = new Tail(file, {
       fromBeginning: this._readFromBeginning,
       logger: {

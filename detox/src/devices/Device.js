@@ -101,16 +101,16 @@ class Device {
 
     const _bundleId = bundleId || this._bundleId;
 
-    await this.emit('beforeLaunchApp', {
-      deviceId: this._deviceId,
-      bundleId: _bundleId,
-    });
-
     if (this._isAppInBackground(params, _bundleId)) {
       if (hasPayload) {
         await this.deviceDriver.deliverPayload({...params, delayPayload: true});
       }
     }
+
+    await this.emit('beforeLaunchApp', {
+      deviceId: this._deviceId,
+      bundleId: _bundleId,
+    });
 
     const processId = await this.deviceDriver.launch(this._deviceId, _bundleId, this._prepareLaunchArgs(baseLaunchArgs));
     this._processes[_bundleId] = processId;

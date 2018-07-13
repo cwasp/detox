@@ -1,4 +1,3 @@
-const {spawn} = require('child_process');
 const fs = require('fs');
 const _ = require('lodash');
 const log = require('../utils/logger').child({ __filename });
@@ -17,6 +16,7 @@ const ADBScreencapPlugin = require('../artifacts/screenshot/ADBScreencapPlugin')
 const ADBScreenrecorderPlugin = require('../artifacts/video/ADBScreenrecorderPlugin');
 const AndroidDevicePathBuilder = require('../artifacts/utils/AndroidDevicePathBuilder');
 const sleep = require('../utils/sleep');
+const { spawnAndLog } = require('../utils/exec');
 
 const EspressoDetox = 'com.wix.detox.espresso.EspressoDetox';
 
@@ -88,26 +88,17 @@ class AndroidDriver extends DeviceDriverBase {
     if (this.instrumentationProcess) {
       const call = DetoxApi.launchMainActivity();
       await this.invocationManager.execute(call);
+
       return this._queryPID(deviceId, bundleId);
     }
 
     const testRunner = await this.adb.getInstrumentationRunner(deviceId, bundleId);
 
-    this.instrumentationProcess = spawn(this.adb.adbBin, [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`,
-      `false`, testRunner]);
-    log.debug(this.instrumentationProcess.spawnargs.join(" "));
-    log.debug('Instrumentation spawned, childProcess.pid: ', this.instrumentationProcess.pid);
-    this.instrumentationProcess.stdout.on('data', function(data) {
-      log.debug('Instrumentation stdout: ', data.toString());
-    });
-    this.instrumentationProcess.stderr.on('data', function(data) {
-      log.debug('Instrumentation stderr: ', data.toString());
-    });
+    this.instrumentationProcess = spawnAndLog(this.adb.adbBin,
+      [`-s`, `${deviceId}`, `shell`, `am`, `instrument`, `-w`, `-r`, `${args.join(' ')}`, `-e`, `debug`, `false`, testRunner],
+      { detached: false });
 
-    this.instrumentationProcess.on('close', (code, signal) => {
-      log.debug(`instrumentationProcess terminated due to receipt of signal ${signal}`);
-      this.terminateInstrumentation();
-    });
+    this.instrumentationProcess.on('close', () => this.terminateInstrumentation());
 
     return this._queryPID(deviceId, bundleId);
   }
