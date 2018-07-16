@@ -151,15 +151,9 @@ describe('Device', () => {
       pid: 2,
     };
 
-    expect(logger.error).toHaveBeenCalledWith(
-      'detox-device',
-      'device.emit("%s", %j) error',
-      'launchApp',
-      eventObject
-    );
-
-    expect(logError).toHaveBeenCalledWith(errorSync, 'detox-device');
-    expect(logError).toHaveBeenCalledWith(errorAsync, 'detox-device');
+    expect(logger.error).toHaveBeenCalledWith(`Caught an exception in: device.emit("launchApp", {"pid":2})`);
+    expect(logError).toHaveBeenCalledWith(logger, errorSync);
+    expect(logError).toHaveBeenCalledWith(logger, errorAsync);
   });
 
   it(`relaunchApp()`, async () => {
