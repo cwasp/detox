@@ -151,15 +151,21 @@ describe('spawn', () => {
     cpp.spawn.mockReturnValue({
       childProcess: {
         stdout: toStream('hello'),
-        stderr: toStream('world')
+        stderr: toStream('world'),
+        on: (eventName, listener) => {
+          if (eventName === 'end') {
+            listener(1, 'SIGTERM');
+          }
+        },
       }
     });
 
     exec.spawnAndLog('command', []);
     await nextCycle();
 
-    expect(log.verbose).toBeCalledWith('stdout:', 'hello');
-    expect(log.verbose).toBeCalledWith('stderr:', 'world');
+    expect(log.debug).toBeCalledWith(expect.objectContaining({ event: 'SPAWN_END' }), expect.stringContaining('SIGTERM'));
+    expect(log.debug).toBeCalledWith(expect.objectContaining({ stdout: true }), 'hello');
+    expect(log.debug).toBeCalledWith(expect.objectContaining({ stderr: true }), 'world');
   });
 });
 

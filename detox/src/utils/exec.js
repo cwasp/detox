@@ -74,9 +74,6 @@ async function execWithRetriesAndLogs(bin, options, statusLogs, retries = 10, in
 function spawnAndLog(command, flags, options) {
   const sequentialId = _operationCounter++;
 
-  let out = '';
-  let err = '';
-
   const cmd = `${command} ${flags.join(' ')}`;
   let log = execLogger.child({ fn: 'spawnAndLog', cmd, sequentialId });
   log.debug({ event: 'SPAWN_CMD' }, cmd);
